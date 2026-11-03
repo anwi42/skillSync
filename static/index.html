@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SkillSync</title>
+<style>
+  :root {
+    --navy-900: #0a0f1f;
+    --navy-800: #111b35;
+    --navy-700: #16213f;
+    --navy-600: #1d2a4d;
+    --border: #273357;
+    --accent: #38bdf8;
+    --accent-2: #818cf8;
+    --text-main: #e8ecf7;
+    --text-dim: #9aa4c0;
+    --green: #22c55e;
+    --orange: #ea580c;
+    --red: #ef4444;
+    --blue-chip: #3b82f6;
+    --purple-chip: #a855f7;
+    --green-chip: #22c55e;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
+    background: radial-gradient(circle at top left, #0f1730 0%, var(--navy-900) 55%);
+    color: var(--text-main);
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 40px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10, 15, 31, 0.8);
+    backdrop-filter: blur(6px);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+
+  .brand .logo-dot {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #06111f;
+    font-weight: 800;
+  }
+
+  .tagline {
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 36px 24px 10px;
+  }
+
+  .step-card {
+    background: linear-gradient(180deg, var(--navy-800), var(--navy-700));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 26px 28px;
+    margin-bottom: 22px;
+    box-shadow: 0 10px 30px -15px rgba(0,0,0,0.6);
+  }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--navy-600);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .step-title {
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .step-sub {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin: -10px 0 16px 40px;
+  }
+
+  .dropzone {
+    border: 1.5px dashed var(--border);
+    border-radius: 12px;
+    padding: 26px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    background: rgba(255,255,255,0.01);
+  }
+
+  .dropzone:hover, .dropzone.dragover {
+    border-color: var(--accent);
+    background: rgba(56, 189, 248, 0.05);
+  }
+
+  .dropzone input[type="file"] { display: none; }
+
+  .dropzone .dz-icon { font-size: 26px; margin-bottom: 8px; }
+  .dropzone .dz-text { font-size: 14px; color: var(--text-main); }
+  .dropzone .dz-sub { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+  .dropzone .dz-file {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .toggle-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .toggle-btn {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--navy-600);
+    color: var(--text-dim);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .toggle-btn.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #06111f;
+    border-color: transparent;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 160px;
+    resize: vertical;
+    background: var(--navy-900);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    color: var(--text-main);
+    font-size: 14px;
+    font-family: inherit;
+  }
+
+  textarea:focus { outline: none; border-color: var(--accent); }
+
+  .hidden { display: none !important; }
+
+  .analyze-btn {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #06111f;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.15s;
+  }
+
+  .analyze-btn:hover { transform: translateY(-1px); }
+  .analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .error-banner {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid var(--red);
+    color: #fecaca;
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .spinner-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 50px 0;
+  }
+
+  .spinner {
+    width: 44px;
+    height: 44px;
+    border: 4px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .spinner-text { color: var(--text-dim); font-size: 14px; }
+
+  /* ---- Results ---- */
+  #results { margin-top: 10px; }
+
+  .score-card {
+    background: linear-gradient(180deg, var(--navy-800), var(--navy-700));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 34px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+  }
+
+  .gauge {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: conic-gradient(var(--gauge-color) calc(var(--pct) * 1%), var(--navy-600) 0);
+  }
+
+  .gauge::before {
+    content: "";
+    position: absolute;
+    width: 142px;
+    height: 142px;
+    border-radius: 50%;
+    background: var(--navy-800);
+  }
+
+  .gauge-inner {
+    position: relative;
+    text-align: center;
+    z-index: 2;
+  }
+
+  .gauge-pct {
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--gauge-color);
+  }
+
+  .gauge-label {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+  }
+
+  .score-meta { max-width: 360px; }
+  .score-meta h2 { margin: 0 0 8px; font-size: 20px; }
+  .score-meta p { margin: 0; color: var(--text-dim); font-size: 14px; line-height: 1.5; }
+
+  .columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 860px) {
+    .columns { grid-template-columns: 1fr; }
+  }
+
+  .col-card {
+    background: linear-gradient(180deg, var(--navy-800), var(--navy-700));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .col-title {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .chip-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .chip {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 600;
+    border: 1px solid transparent;
+  }
+
+  .chip.technical { background: rgba(59, 130, 246, 0.15); color: #93c5fd; border-color: rgba(59,130,246,0.35); }
+  .chip.tools { background: rgba(168, 85, 247, 0.15); color: #d8b4fe; border-color: rgba(168,85,247,0.35); }
+  .chip.soft { background: rgba(34, 197, 94, 0.15); color: #86efac; border-color: rgba(34,197,94,0.35); }
+
+  .empty-note { color: var(--text-dim); font-size: 13px; font-style: italic; }
+
+  .missing-item {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.015);
+  }
+
+  .missing-item-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .missing-item-name { font-weight: 700; font-size: 14px; }
+
+  .priority-badge {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    flex-shrink: 0;
+  }
+
+  .priority-badge.High { background: rgba(239,68,68,0.18); color: #fca5a5; }
+  .priority-badge.Medium { background: rgba(234,88,12,0.18); color: #fdba74; }
+  .priority-badge.Low { background: rgba(148,163,184,0.18); color: #cbd5e1; }
+
+  .resource-list { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+
+  .resource-link {
+    font-size: 12.5px;
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .resource-link:hover { text-decoration: underline; }
+
+  .suggestion-item {
+    display: flex;
+    gap: 10px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--text-main);
+  }
+
+  .suggestion-num {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--navy-600);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .actions-row {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 10px;
+  }
+
+  .secondary-btn {
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--navy-600);
+    color: var(--text-main);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .secondary-btn:hover { border-color: var(--accent); }
+
+  .download-btn {
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #06111f;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  footer {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 12px;
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo-dot">SS</div>
+    SkillSync
+  </div>
+  <div class="tagline">AI-powered resume &amp; job-fit analysis</div>
+</header>
+
+<main>
+
+  <div id="errorBanner" class="error-banner hidden">
+    <span>⚠️</span>
+    <span id="errorText"></span>
+  </div>
+
+  <!-- STEP 1: Resume Upload -->
+  <section class="step-card">
+    <div class="step-header">
+      <div class="step-num">1</div>
+      <div class="step-title">Upload your resume</div>
+    </div>
+    <div class="step-sub">Accepted formats: PDF, DOCX or PPTX &middot; Max 10MB</div>
+
+    <label class="dropzone" id="resumeDropzone">
+      <input type="file" id="resumeInput" accept=".pdf,.docx,.pptx" />
+      <div class="dz-icon">📄</div>
+      <div class="dz-text">Click to browse or drag &amp; drop your resume</div>
+      <div class="dz-sub">PDF, DOCX or PPTX, up to 10MB</div>
+      <div class="dz-file" id="resumeFileName"></div>
+    </label>
+  </section>
+
+  <!-- STEP 2: Job Description -->
+  <section class="step-card">
+    <div class="step-header">
+      <div class="step-num">2</div>
+      <div class="step-title">Add the job description</div>
+    </div>
+    <div class="step-sub">Paste the JD text, or upload a PDF, DOCX or PPTX file</div>
+
+    <div class="toggle-group">
+      <button class="toggle-btn active" id="toggleTextBtn" type="button">✍️ Paste Text</button>
+      <button class="toggle-btn" id="toggleFileBtn" type="button">📁 Upload File</button>
+    </div>
+
+    <textarea id="jdTextArea" placeholder="Paste the full job description here..."></textarea>
+
+    <label class="dropzone hidden" id="jdDropzone">
+      <input type="file" id="jdFileInput" accept=".pdf,.docx,.pptx" />
+      <div class="dz-icon">📎</div>
+      <div class="dz-text">Click to browse or drag &amp; drop the job description</div>
+      <div class="dz-sub">PDF, DOCX or PPTX, up to 10MB</div>
+      <div class="dz-file" id="jdFileName"></div>
+    </label>
+  </section>
+
+  <!-- STEP 3: Analyze -->
+  <section class="step-card">
+    <div class="step-header">
+      <div class="step-num">3</div>
+      <div class="step-title">Run the analysis</div>
+    </div>
+    <button class="analyze-btn" id="analyzeBtn">Analyze Skill Gap →</button>
+  </section>
+
+  <div id="loadingWrap" class="spinner-wrap hidden">
+    <div class="spinner"></div>
+    <div class="spinner-text">Analyzing your resume against the job description...</div>
+  </div>
+
+  <!-- RESULTS -->
+  <section id="results" class="hidden">
+
+    <div class="score-card">
+      <div class="gauge" id="gauge">
+        <div class="gauge-inner">
+          <div class="gauge-pct" id="gaugePct">0%</div>
+          <div class="gauge-label">MATCH SCORE</div>
+        </div>
+      </div>
+      <div class="score-meta">
+        <h2 id="scoreHeadline">Here's how you stack up</h2>
+        <p id="scoreDescription"></p>
+      </div>
+    </div>
+
+    <div class="columns">
+      <div class="col-card">
+        <div class="col-title">✅ Matched Skills</div>
+        <div class="chip-wrap" id="matchedChips"></div>
+      </div>
+
+      <div class="col-card">
+        <div class="col-title">🎯 Missing Skills</div>
+        <div id="missingList" style="display:flex; flex-direction:column; gap:10px;"></div>
+      </div>
+
+      <div class="col-card">
+        <div class="col-title">💡 Suggestions</div>
+        <div id="suggestionsList" style="display:flex; flex-direction:column; gap:10px;"></div>
+      </div>
+    </div>
+
+    <div class="actions-row">
+      <button class="secondary-btn" id="resetBtn">Start Over</button>
+      <button class="download-btn" id="downloadBtn">⬇ Download Report (PDF)</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>SkillSync &middot; Built with FastAPI + Groq (llama-3.3-70b-versatile)</footer>
+
+<script>
+  const resumeInput = document.getElementById('resumeInput');
+  const resumeDropzone = document.getElementById('resumeDropzone');
+  const resumeFileName = document.getElementById('resumeFileName');
+
+  const toggleTextBtn = document.getElementById('toggleTextBtn');
+  const toggleFileBtn = document.getElementById('toggleFileBtn');
+  const jdTextArea = document.getElementById('jdTextArea');
+  const jdDropzone = document.getElementById('jdDropzone');
+  const jdFileInput = document.getElementById('jdFileInput');
+  const jdFileName = document.getElementById('jdFileName');
+
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  const loadingWrap = document.getElementById('loadingWrap');
+  const resultsSection = document.getElementById('results');
+  const errorBanner = document.getElementById('errorBanner');
+  const errorText = document.getElementById('errorText');
+  const resetBtn = document.getElementById('resetBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
+
+  let jdMode = 'text'; // 'text' | 'file'
+  let lastAnalysis = null;
+
+  function showError(msg) {
+    errorText.textContent = msg;
+    errorBanner.classList.remove('hidden');
+    errorBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function clearError() {
+    errorBanner.classList.add('hidden');
+    errorText.textContent = '';
+  }
+
+  // --- Resume dropzone ---
+  resumeDropzone.addEventListener('click', (e) => {
+    if (e.target.tagName !== 'INPUT') resumeInput.click();
+  });
+  resumeInput.addEventListener('change', () => {
+    if (resumeInput.files.length) {
+      resumeFileName.textContent = '✓ ' + resumeInput.files[0].name;
+    }
+  });
+  setupDragDrop(resumeDropzone, resumeInput, resumeFileName);
+
+  // --- JD toggle ---
+  toggleTextBtn.addEventListener('click', () => {
+    jdMode = 'text';
+    toggleTextBtn.classList.add('active');
+    toggleFileBtn.classList.remove('active');
+    jdTextArea.classList.remove('hidden');
+    jdDropzone.classList.add('hidden');
+  });
+
+  toggleFileBtn.addEventListener('click', () => {
+    jdMode = 'file';
+    toggleFileBtn.classList.add('active');
+    toggleTextBtn.classList.remove('active');
+    jdDropzone.classList.remove('hidden');
+    jdTextArea.classList.add('hidden');
+  });
+
+  jdDropzone.addEventListener('click', (e) => {
+    if (e.target.tagName !== 'INPUT') jdFileInput.click();
+  });
+  jdFileInput.addEventListener('change', () => {
+    if (jdFileInput.files.length) {
+      jdFileName.textContent = '✓ ' + jdFileInput.files[0].name;
+    }
+  });
+  setupDragDrop(jdDropzone, jdFileInput, jdFileName);
+
+  function setupDragDrop(zone, input, label) {
+    zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      zone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) {
+        input.files = e.dataTransfer.files;
+        label.textContent = '✓ ' + e.dataTransfer.files[0].name;
+      }
+    });
+  }
+
+  // --- Analyze ---
+  analyzeBtn.addEventListener('click', async () => {
+    clearError();
+
+    if (!resumeInput.files.length) {
+      showError('Please upload your resume (PDF, DOCX or PPTX) before analyzing.');
+      return;
+    }
+
+    if (jdMode === 'text' && !jdTextArea.value.trim()) {
+      showError('Please paste the job description text, or switch to "Upload File".');
+      return;
+    }
+    if (jdMode === 'file' && !jdFileInput.files.length) {
+      showError('Please upload a job description file, or switch to "Paste Text".');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('resume', resumeInput.files[0]);
+    if (jdMode === 'text') {
+      formData.append('jd_text', jdTextArea.value.trim());
+    } else {
+      formData.append('jd_file', jdFileInput.files[0]);
+    }
+
+    analyzeBtn.disabled = true;
+    resultsSection.classList.add('hidden');
+    loadingWrap.classList.remove('hidden');
+
+    try {
+      const res = await fetch('/analyze', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.detail || 'Something went wrong during analysis.');
+      }
+
+      lastAnalysis = data;
+      renderResults(data);
+      resultsSection.classList.remove('hidden');
+      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (err) {
+      showError(err.message || 'Network error — could not reach the server.');
+    } finally {
+      loadingWrap.classList.add('hidden');
+      analyzeBtn.disabled = false;
+    }
+  });
+
+  function scoreColor(score) {
+    if (score < 40) return '#ef4444';
+    if (score <= 70) return '#ea580c';
+    return '#22c55e';
+  }
+
+  function renderResults(data) {
+    const score = data.match_score ?? 0;
+    const color = scoreColor(score);
+
+    const gauge = document.getElementById('gauge');
+    gauge.style.setProperty('--pct', score);
+    gauge.style.setProperty('--gauge-color', color);
+    document.getElementById('gaugePct').textContent = score + '%';
+    document.getElementById('gaugePct').style.color = color;
+
+    const headline = score > 70 ? "Strong match!" : score >= 40 ? "Decent match — some gaps to close" : "Significant gaps found";
+    document.getElementById('scoreHeadline').textContent = headline;
+    document.getElementById('scoreDescription').textContent =
+      `Your resume matches ${data.matched_skills?.length || 0} skill(s) required by this job, ` +
+      `with ${data.missing_skills?.length || 0} skill(s) still missing. Review the breakdown below and ` +
+      `use the suggestions to strengthen your resume for this role.`;
+
+    // Matched chips
+    const matchedWrap = document.getElementById('matchedChips');
+    matchedWrap.innerHTML = '';
+    if (!data.matched_skills || data.matched_skills.length === 0) {
+      matchedWrap.innerHTML = '<div class="empty-note">No matched skills found.</div>';
+    } else {
+      data.matched_skills.forEach(s => {
+        const chip = document.createElement('span');
+        chip.className = 'chip ' + (s.category || 'technical');
+        chip.textContent = s.name;
+        matchedWrap.appendChild(chip);
+      });
+    }
+
+    // Missing skills
+    const missingList = document.getElementById('missingList');
+    missingList.innerHTML = '';
+    if (!data.missing_skills || data.missing_skills.length === 0) {
+      missingList.innerHTML = '<div class="empty-note">No missing skills — great job!</div>';
+    } else {
+      data.missing_skills.forEach(s => {
+        const item = document.createElement('div');
+        item.className = 'missing-item';
+
+        const head = document.createElement('div');
+        head.className = 'missing-item-head';
+
+        const name = document.createElement('div');
+        name.className = 'missing-item-name';
+        name.textContent = s.name;
+
+        const badge = document.createElement('span');
+        badge.className = 'priority-badge ' + (s.priority || 'Medium');
+        badge.textContent = s.priority || 'Medium';
+
+        head.appendChild(name);
+        head.appendChild(badge);
+        item.appendChild(head);
+
+        if (s.resources && s.resources.length) {
+          const resList = document.createElement('div');
+          resList.className = 'resource-list';
+          s.resources.forEach(r => {
+            const link = document.createElement('a');
+            link.href = r.url || '#';
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.className = 'resource-link';
+            link.textContent = `📚 ${r.title} — ${r.platform}`;
+            resList.appendChild(link);
+          });
+          item.appendChild(resList);
+        }
+
+        missingList.appendChild(item);
+      });
+    }
+
+    // Suggestions
+    const suggList = document.getElementById('suggestionsList');
+    suggList.innerHTML = '';
+    if (!data.suggestions || data.suggestions.length === 0) {
+      suggList.innerHTML = '<div class="empty-note">No suggestions generated.</div>';
+    } else {
+      data.suggestions.forEach((s, i) => {
+        const row = document.createElement('div');
+        row.className = 'suggestion-item';
+        const num = document.createElement('div');
+        num.className = 'suggestion-num';
+        num.textContent = i + 1;
+        const text = document.createElement('div');
+        text.textContent = s;
+        row.appendChild(num);
+        row.appendChild(text);
+        suggList.appendChild(row);
+      });
+    }
+  }
+
+  // --- Download report ---
+  downloadBtn.addEventListener('click', async () => {
+    if (!lastAnalysis) return;
+    downloadBtn.disabled = true;
+    downloadBtn.textContent = 'Generating...';
+    try {
+      const res = await fetch('/download-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(lastAnalysis),
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || 'Could not generate the PDF report.');
+      }
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'skillsync_report.pdf';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      showError(err.message || 'Could not download the report.');
+    } finally {
+      downloadBtn.disabled = false;
+      downloadBtn.textContent = '⬇ Download Report (PDF)';
+    }
+  });
+
+  // --- Reset ---
+  resetBtn.addEventListener('click', () => {
+    resumeInput.value = '';
+    resumeFileName.textContent = '';
+    jdTextArea.value = '';
+    jdFileInput.value = '';
+    jdFileName.textContent = '';
+    lastAnalysis = null;
+    resultsSection.classList.add('hidden');
+    clearError();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>
+
+</body>
+</html>
