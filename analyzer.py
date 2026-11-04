@@ -88,7 +88,16 @@ The JSON object must exactly follow this schema:
       ]
     }
   ],
-  "suggestions": [string]
+  "suggestions": [string],
+  "ats_breakdown": {
+    "keyword_density": integer (0-100),
+    "action_verbs": boolean,
+    "quantified_achievements": boolean,
+    "formatting_score": integer (0-100),
+    "overall_ats_score": integer (0-100)
+  },
+  "role_fit_summary": string,
+  "recommended_job_titles": [string]
 }
 
 Rules:
@@ -106,6 +115,22 @@ Rules:
   closing the gap with THIS job description (not generic advice)
 - match_score should realistically reflect the overlap between resume and JD skills,
   weighted toward technical/tool requirements
+- ats_breakdown = an assessment of how well the resume would survive an Applicant
+  Tracking System (ATS) scan, independent of the JD match score:
+  - keyword_density: 0-100, how well the resume's wording covers common ATS/role keywords
+  - action_verbs: true if the resume bullets predominantly start with strong action verbs
+    (e.g. "Led", "Built", "Designed"), false if they are weak/passive
+  - quantified_achievements: true if the resume includes measurable outcomes
+    (numbers, percentages, metrics), false if achievements are mostly unquantified
+  - formatting_score: 0-100, how clean/parseable the resume structure is for an ATS
+    (standard section headings, no complex tables/columns, consistent dates, etc.)
+  - overall_ats_score: 0-100, your overall ATS-friendliness score combining the above
+- role_fit_summary = a 2-3 sentence, personalized paragraph (not generic) explaining
+  how well THIS candidate fits THIS specific role, referencing concrete strengths
+  and/or gaps evidenced in the resume and JD
+- recommended_job_titles = exactly 3 job titles, based on the candidate's demonstrated
+  resume skills, that they are realistically well-suited for (may include the JD's
+  own title if it fits, but should also reflect adjacent/alternative roles)
 - Output valid JSON only. Use double quotes. No trailing commas."""
 
 
@@ -215,6 +240,37 @@ def _clean_resources(resources) -> list:
     return cleaned
 
 
+def _clean_percent(value, default: int = 0) -> int:
+    try:
+        pct = int(round(float(value)))
+    except (TypeError, ValueError):
+        pct = default
+    return max(0, min(100, pct))
+
+
+def _clean_bool(value) -> bool:
+    if isinstance(value, str):
+        return value.strip().lower() in {"true", "yes", "1"}
+    return bool(value)
+
+
+def _clean_ats_breakdown(breakdown) -> dict:
+    if not isinstance(breakdown, dict):
+        breakdown = {}
+    return {
+        "keyword_density": _clean_percent(breakdown.get("keyword_density")),
+        "action_verbs": _clean_bool(breakdown.get("action_verbs")),
+        "quantified_achievements": _clean_bool(breakdown.get("quantified_achievements")),
+        "formatting_score": _clean_percent(breakdown.get("formatting_score")),
+        "overall_ats_score": _clean_percent(breakdown.get("overall_ats_score")),
+    }
+
+
+def _clean_job_titles(titles) -> list:
+    cleaned = _clean_skill_list(titles)
+    return cleaned[:3]
+
+
 def _normalize_response(data: dict) -> dict:
     """Guarantee every expected field exists with the correct type, no matter what the model returned."""
     if not isinstance(data, dict):
@@ -279,6 +335,17 @@ def _normalize_response(data: dict) -> dict:
             "Highlight projects or coursework that demonstrate the missing skills listed above.",
         ]
 
+    ats_breakdown = _clean_ats_breakdown(data.get("ats_breakdown"))
+
+    role_fit_summary = str(data.get("role_fit_summary", "")).strip()
+    if not role_fit_summary:
+        role_fit_summary = (
+            "A detailed role fit summary could not be generated for this analysis. "
+            "Review the matched and missing skills above to gauge overall fit."
+        )
+
+    recommended_job_titles = _clean_job_titles(data.get("recommended_job_titles"))
+
     return {
         "resume_skills": resume_skills,
         "jd_skills": jd_skills,
@@ -286,6 +353,9 @@ def _normalize_response(data: dict) -> dict:
         "matched_skills": matched_skills,
         "missing_skills": missing_skills,
         "suggestions": suggestions[:4],
+        "ats_breakdown": ats_breakdown,
+        "role_fit_summary": role_fit_summary,
+        "recommended_job_titles": recommended_job_titles,
     }
 
 

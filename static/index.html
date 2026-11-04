@@ -301,6 +301,95 @@
   .score-meta h2 { margin: 0 0 8px; font-size: 20px; }
   .score-meta p { margin: 0; color: var(--text-dim); font-size: 14px; line-height: 1.5; }
 
+  .ats-card {
+    background: linear-gradient(180deg, var(--navy-800), var(--navy-700));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 26px 28px;
+    margin-bottom: 22px;
+  }
+
+  .ats-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+
+  .ats-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ats-overall-pct {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .ats-row {
+    display: grid;
+    grid-template-columns: 170px 1fr 50px;
+    align-items: center;
+    gap: 14px;
+    padding: 9px 0;
+    font-size: 13.5px;
+  }
+
+  .ats-row-label { color: var(--text-dim); }
+
+  .ats-bar-track {
+    height: 9px;
+    border-radius: 999px;
+    background: var(--navy-600);
+    overflow: hidden;
+  }
+
+  .ats-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+
+  .ats-row-value { text-align: right; font-weight: 700; }
+
+  .ats-bool-value { text-align: right; font-size: 15px; }
+
+  .role-fit-card {
+    background: linear-gradient(180deg, var(--navy-800), var(--navy-700));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 22px;
+  }
+
+  .role-fit-text {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--text-main);
+  }
+
+  .recommended-roles-card {
+    background: linear-gradient(180deg, var(--navy-800), var(--navy-700));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 24px;
+  }
+
+  .role-chip {
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    background: rgba(56, 189, 248, 0.12);
+    color: var(--accent);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+  }
+
   .columns {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -540,6 +629,47 @@
       </div>
     </div>
 
+    <div class="ats-card">
+      <div class="ats-card-head">
+        <div class="ats-card-title">🛡️ ATS Score Breakdown</div>
+        <div class="ats-overall-pct" id="atsOverallPct">0%</div>
+      </div>
+
+      <div class="ats-row">
+        <div class="ats-row-label">Keyword Density</div>
+        <div class="ats-bar-track"><div class="ats-bar-fill" id="atsKeywordBar" style="width:0%"></div></div>
+        <div class="ats-row-value" id="atsKeywordPct">0%</div>
+      </div>
+
+      <div class="ats-row">
+        <div class="ats-row-label">Action Verbs</div>
+        <div></div>
+        <div class="ats-bool-value" id="atsActionVerbs">❌</div>
+      </div>
+
+      <div class="ats-row">
+        <div class="ats-row-label">Quantified Achievements</div>
+        <div></div>
+        <div class="ats-bool-value" id="atsQuantified">❌</div>
+      </div>
+
+      <div class="ats-row">
+        <div class="ats-row-label">Formatting Score</div>
+        <div class="ats-bar-track"><div class="ats-bar-fill" id="atsFormattingBar" style="width:0%"></div></div>
+        <div class="ats-row-value" id="atsFormattingPct">0%</div>
+      </div>
+    </div>
+
+    <div class="role-fit-card">
+      <div class="col-title">🧭 Role Fit Summary</div>
+      <p class="role-fit-text" id="roleFitText" style="margin-top:12px;"></p>
+    </div>
+
+    <div class="recommended-roles-card">
+      <div class="col-title">🚀 Recommended Roles</div>
+      <div class="chip-wrap" id="recommendedRolesChips" style="margin-top:12px;"></div>
+    </div>
+
     <div class="columns">
       <div class="col-card">
         <div class="col-title">✅ Matched Skills</div>
@@ -724,6 +854,34 @@
       `Your resume matches ${data.matched_skills?.length || 0} skill(s) required by this job, ` +
       `with ${data.missing_skills?.length || 0} skill(s) still missing. Review the breakdown below and ` +
       `use the suggestions to strengthen your resume for this role.`;
+
+    // ATS score breakdown
+    const ats = data.ats_breakdown || {};
+    document.getElementById('atsOverallPct').textContent = (ats.overall_ats_score ?? 0) + '%';
+    document.getElementById('atsKeywordBar').style.width = (ats.keyword_density ?? 0) + '%';
+    document.getElementById('atsKeywordPct').textContent = (ats.keyword_density ?? 0) + '%';
+    document.getElementById('atsFormattingBar').style.width = (ats.formatting_score ?? 0) + '%';
+    document.getElementById('atsFormattingPct').textContent = (ats.formatting_score ?? 0) + '%';
+    document.getElementById('atsActionVerbs').textContent = ats.action_verbs ? '✅' : '❌';
+    document.getElementById('atsQuantified').textContent = ats.quantified_achievements ? '✅' : '❌';
+
+    // Role fit summary
+    document.getElementById('roleFitText').textContent =
+      data.role_fit_summary || 'No role fit summary was generated.';
+
+    // Recommended job titles
+    const rolesWrap = document.getElementById('recommendedRolesChips');
+    rolesWrap.innerHTML = '';
+    if (!data.recommended_job_titles || data.recommended_job_titles.length === 0) {
+      rolesWrap.innerHTML = '<div class="empty-note">No role recommendations generated.</div>';
+    } else {
+      data.recommended_job_titles.forEach(title => {
+        const chip = document.createElement('span');
+        chip.className = 'role-chip';
+        chip.textContent = title;
+        rolesWrap.appendChild(chip);
+      });
+    }
 
     // Matched chips
     const matchedWrap = document.getElementById('matchedChips');
